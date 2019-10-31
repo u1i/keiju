@@ -7,3 +7,4 @@ pip-selfcheck.json
 *.pyc
 .DS_Store
 man/
+__pycache__
