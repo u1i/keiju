@@ -191,11 +191,13 @@ def apiproxy(api, url):
 
 	method = request.method
 	headers = request.headers
+	body = request.body
+
 	headers_str = ', '.join("{!s}={!r}".format(key,val) for (key,val) in headers.items())
 
 	stuff = request.urlparts
 
-	return("Triggering API '" + str(api) + "' with path " + str(url) + " METHOD: " + method + " HEADERS: " + str(headers_str) + " " + str(stuff))
+	return("Triggering API '" + str(api) + "' with path " + str(url) + " METHOD: " + method + " HEADERS: " + str(headers_str) + " " + str(stuff) + " " + str(body.read()) )
 
 # Default 404 handler
 @app.error(404)
