@@ -16,5 +16,5 @@ RUN chmod a+rx /app/k3u.sh
 COPY server.py /app/server.py
 COPY keiju.py /app/keiju.py
 RUN chmod a+r /app/*
-
+USER 1000
 CMD ["/app/k3u.sh"]
