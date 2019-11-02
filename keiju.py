@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 # Settings
 admin_password = "changeme"
-redis_datadir = '/data' # this is currently also set in b9y.sh
+redis_datadir = '/data'
 redis_maxmemory = '128mb'
 k3u_version = "0.0.1"
 salt = "@Id8jKtYn"

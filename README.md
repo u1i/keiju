@@ -1,1 +1,1 @@
-![](./resources/keiju-01.png)
+![](./resources/keiju-02-small.png)
