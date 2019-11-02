@@ -6,7 +6,7 @@
 * Supports API Keys & Basic Auth
 * Detailed Request/Response Logging in JSON on STDOUT
 * Control & Configure via API
-* Runs on Docker, k8s, knative, OpenShift etc.
+* Runs on Docker, k8s, knative, OpenShift, Google Cloud Run etc.
 * Stateful (embedded Redis) by default, or use external Redis
 
 ## Run Keiju with Docker
@@ -133,7 +133,7 @@ Yes. Simplicity.
 
 ### What about HTTPS ?
 
-I suggest to have nginx, haproxy, k8s etc. take care of that.
+I suggest to have nginx, haproxy, k8s etc. take care of that. Try running it on Google Cloud Run!
 
 ### Coming soon
 
