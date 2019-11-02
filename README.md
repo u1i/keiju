@@ -9,6 +9,9 @@
 * Runs on Docker, k8s, knative, OpenShift, Google Cloud Run etc.
 * Stateful (embedded Redis) by default, or use external Redis
 
+![](./resources/k3u.png)
+
+
 ## Run Keiju with Docker
 
 `docker run -d -p 8080:8080 u1ih/keiju:latest`
