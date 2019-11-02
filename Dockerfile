@@ -10,7 +10,8 @@ RUN apk update
 RUN apk add redis
 RUN mkdir /app
 RUN mkdir /data
-RUN pip3 install cherrypy bottle redis
+COPY requirements.txt /app/requirements.txt
+RUN pip3 install -r /app/requirements.txt
 COPY k3u.sh /app
 RUN chmod a+rx /app/k3u.sh
 COPY server.py /app/server.py

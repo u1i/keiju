@@ -11,4 +11,4 @@ then
   /usr/bin/redis-server --dbfilename dump.rdb --dir /data &
 fi
 
-python3 /app/server.py
+python3 -u /app/server.py

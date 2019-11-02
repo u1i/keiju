@@ -1,6 +1,7 @@
 import json, os, uuid, base64, redis, time, hmac, hashlib, keyword, re, requests
 from bottle import Bottle, request, response
 from functools import wraps
+from urllib.parse import urlparse
 
 # Settings
 admin_password = "changeme"
@@ -8,6 +9,7 @@ redis_datadir = '/data' # this is currently also set in b9y.sh
 redis_maxmemory = '128mb'
 k3u_version = "0.0.1"
 salt = "@Id8jKtYn"
+debug = False
 
 app = Bottle()
 
@@ -81,7 +83,8 @@ def create_api():
 		return dict({"info":"Need name and URL. Read the documentation?"})
 
 	try:
-		api_methods = json.loads(request.forms["methods"])
+		#api_methods = json.loads(request.forms["methods"])
+		api_methods = request.forms["methods"].split(",")
 	except:
 		api_methods = ['GET', 'POST', 'PUT', 'DELETE']
 
@@ -174,6 +177,45 @@ def set_admin_password():
 @app.get("/<api>/<url:re:.*>", method='DELETE')
 def apiproxy(api, url):
 
+	# Generate a Request ID
+	request_id = str(uuid.uuid4())
+
+	# Get Info abouy the Request from the Client
+	client_ip = request.environ.get('REMOTE_ADDR')
+	try:
+		client_agent = request.environ.get('HTTP_USER_AGENT')
+	except:
+		client_agent = ""
+
+	method = request.method
+	headers = request.headers
+	body = request.body
+
+	request_headers = {}
+
+	for (x,y) in headers.items():
+		request_headers[x] = y
+
+	log_obj = {}
+
+	log_obj["Request-ID"] = request_id
+	log_obj["Client-Request"] = {}
+	log_obj["Client-Request"]["client-ip"] = client_ip
+	log_obj["Client-Request"]["client-useragent"] = client_agent
+	log_obj["Client-Request"]["method"] = method
+	log_obj["Client-Request"]["headers"] = str(request_headers)
+
+	log_obj["Backend-Request"] = {}
+	log_obj["Backend-Response"] = {}
+	log_obj["Client-Response"] = {}
+
+	# Return the Quest ID
+	response.headers["X-REQUEST-ID"] = str(request_id)
+	request_id_str = "ID:" + request_id + ":"
+	if debug:
+		print (request_id_str + "Proxy Request for API " + api)
+
+	# Get Info about this API Proxy
 	try:
 		api_record = json.loads(rc.get("API:" + api))
 	except:
@@ -181,23 +223,125 @@ def apiproxy(api, url):
 
 	if api_record == None:
 		response.status = 404
+		if debug:
+			print (request_id_str + "Request for invalid API " + api)
+
+		log_obj["Client-Response"]["code"] = "404"
+		log_obj["Client-Response"]["info"] = "no such API"
+		print(log_obj)
 		return dict({"info":"No such API."})
 
-	api_out = {}
-	api_out["name"] = api_record["name"]
-	api_out["url"] = api_record["url"]
-	api_out["methods"] = api_record["methods"]
-	api_out["auth"] = api_record["auth"]
+	api_data = {}
+	api_data["name"] = api_record["name"]
+	api_data["url"] = api_record["url"]
+	api_data["methods"] = api_record["methods"]
+	api_data["auth"] = api_record["auth"]
+	api_data["host"] = str(urlparse(api_data["url"]).hostname) + _xstr(urlparse(api_data["url"]).port)
 
-	method = request.method
-	headers = request.headers
-	body = request.body
+	(request_scheme, request_netloc, request_path, request_query, request_fragment) = request.urlparts
 
-	headers_str = ', '.join("{!s}={!r}".format(key,val) for (key,val) in headers.items())
+	if method not in api_data["methods"]:
+		response.status = 405
 
-	stuff = request.urlparts
+		if debug:
+			print (request_id_str + " Method not allowed for API " + api)
 
-	return("Triggering API '" + str(api) + "' with path " + str(url) + " METHOD: " + method + " HEADERS: " + str(headers_str) + " " + str(stuff) + " " + str(body.read()) )
+		log_obj["Client-Response"]["code"] = "405"
+		log_obj["Client-Response"]["info"] = "Method not allowed for API"
+		print(log_obj)
+
+		return
+
+	# check Auth
+
+	# Prepare the Request to the Backend
+
+	# strip the API name from the request path
+	send_path = request_path.replace("/" + api, "", 1)
+
+	url = api_data["url"] + send_path
+
+	querystring = request_query
+
+	headers = dict(request_headers)
+	send_headers = dict(headers)
+
+	send_headers["User-Agent"] = "keiju/" + str(k3u_version)
+	send_headers["Host"] = api_data["host"]
+
+	try:
+		del send_headers["Connection"]
+	except:
+		pass
+
+	try:
+		del send_headers["Content-Length"]
+	except:
+		pass
+
+	# Send the Request to the Backend
+
+	log_obj["Backend-Request"]["headers"] = str(send_headers)
+	log_obj["Backend-Request"]["url"] = str(url)
+	log_obj["Backend-Request"]["querystring"] = str(querystring)
+
+	try:
+		r = requests.request(method, url, headers=send_headers, params=querystring, \
+		data=body, verify=False, timeout=10)
+	except:
+		if debug:
+			print (request_id_str + "Exception while calling backend")
+
+			log_obj["Client-Response"]["code"] = "500"
+			log_obj["Client-Response"]["info"] = "Error while calling backend"
+			print(log_obj)
+
+		response.status = 500
+		return
+
+	if debug:
+		print (request_id_str + "API URL: " + str(api_data["url"]))
+		print (request_id_str + "API Methods: " + str(api_data["methods"]))
+		print (request_id_str + "API Auth: " + str(api_data["auth"]))
+		print (request_id_str + "Request User Agent: " + str(client_agent))
+		print (request_id_str + "Request IP: " + str(client_ip))
+		print (request_id_str + "Request Method: " + str(method))
+		print (request_id_str + "Request Headers: " + str(request_headers))
+		print (request_id_str + "Request Scheme: " + str(request_scheme))
+		print (request_id_str + "Request Host: " + str(request_netloc))
+		print (request_id_str + "Request Path: " + str(request_path))
+		print (request_id_str + "Request Query: " + str(request_query))
+		print (request_id_str + "Request Fragment: " + str(request_fragment))
+
+		print (request_id_str + "Send Headers: " + str(send_headers))
+		print (request_id_str + "Send URL: " + str(url))
+		print (request_id_str + "Send Query: " + str(querystring))
+
+		print (request_id_str + "Backend Response Code: " + str(r.status_code))
+		print (request_id_str + "Backend Response Headers: " + str(r.headers))
+		print (request_id_str + "Backend Response Body: " + str(r.text))
+		print (request_id_str + "Backend Response Time: " + str(r.elapsed.total_seconds()))
+
+
+	log_obj["Backend-Response"]["code"] = str(r.status_code)
+	log_obj["Backend-Response"]["headers"] = str(r.headers)
+	log_obj["Backend-Response"]["code"] = str(r.status_code)
+	log_obj["Backend-Response"]["elapsed_time"] = str(r.elapsed.total_seconds())
+
+
+	# Copy Headers from the Backend Response to what we send back to the Client
+	for k in r.headers:
+		response.headers[k] = r.headers[k]
+
+	try:
+		del response.headers["Connection"]
+	except:
+		pass
+	response.headers["Via"] = "keiju/" + str(k3u_version)
+
+	response.status = r.status_code
+	print(log_obj)
+	return(r.text)
 
 # Default 404 handler
 @app.error(404)
@@ -226,6 +370,12 @@ def _set_admin_password():
 	rc.set("_ADMIN_", pwhash)
 
 	return
+
+def _xstr(inp):
+	if inp == None:
+		return ""
+	else:
+		return str(inp)
 
 # Initialization
 # We need a Redis connection
