@@ -34,10 +34,12 @@ Now we consume the 'protected' API:
 
 `curl "http://localhost:8080/exchange/currency?currency=USD"`
 
-> {"sell": "489.108", "timestamp": "2019-11-02 11:33:41.766224", "buy": "389.109"}
+> {"name": "exchange", "url": "http://backend.yoisho.dob.jp/fx", "methods": ["GET", "POST", "PUT", "DELETE"], "auth": "none", "swagger": "not\_implemented\_yet"}
 
 
 ## Example 2: Basic Authentication
+
+### Register API
 
 ```
 curl -u admin:changeme -X POST \
@@ -47,9 +49,22 @@ curl -u admin:changeme -X POST \
   -d 'url=http://backend.yoisho.dob.jp/fx'
 ```
 
-Create authentication (coming soon)...
+### Create User
+
+```
+curl -X POST -u admin:changeme \
+http://localhost:8080/config/basic-auth \
+-d 'username=uli' -d 'password=bla'`
+
+```
+
+### Consume API with Basic Auth
+
+coming
 
 ## Example 3: API Keys
+
+### Register API
 
 ```
 curl -u admin:changeme -X POST \
@@ -59,7 +74,17 @@ curl -u admin:changeme -X POST \
   -d 'url=http://backend.yoisho.dob.jp/fx'
 ```
 
-Create authentication (coming soon)...
+### Create API Key
+
+```
+curl -X POST -u admin:changeme \
+http://localhost:8080/config/apikeys
+
+```
+
+### Consume API with Basic Auth
+
+coming
 
 ## Example 4: Only Allow Certain HTTP Methods for API
 
@@ -87,10 +112,31 @@ curl -u admin:changeme -X POST \
 
 `curl -u admin:changeme -X PUT http://localhost:8080/config/password --data "password=newpassword"`
 
+### Get 'raw' API Key, not in JSON
+
+```
+curl -X POST -u admin:changeme \
+"http://localhost:8080/config/apikeys?raw"
+```
+
 ### Stateless Container
 
 Connect to external Redis by setting the environment variables redis_host, redis_port, redis_password (optional).
 
+### So an API Key or Basic Auth gets you access to all APIs? No 'applications'?
+
+Yes. Simplicity.
+
+### How does Logging work?
+
+`docker logs CONTAINER_ID`
+
 ### What about HTTPS ?
 
 I suggest to have nginx, haproxy, k8s etc. take care of that.
+
+### Coming soon
+
+* Rate-Limits
+* Swagger Passthrough/Parse
+* TTL for API Keys

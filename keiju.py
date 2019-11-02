@@ -7,8 +7,9 @@ from urllib.parse import urlparse
 admin_password = "changeme"
 redis_datadir = '/data'
 redis_maxmemory = '128mb'
-k3u_version = "0.0.1"
+k3u_version = "0.0.2"
 salt = "@Id8jKtYn"
+default_ttl = 2592000
 debug = False
 
 app = Bottle()
@@ -53,7 +54,7 @@ def validate_admin(function):
 def get_test():
 	return(dict(msg="config info"))
 
-# Lisr all APIs
+# List all APIs
 @app.route('/config/apis', method='GET')
 @validate_admin
 def get_apis():
@@ -66,6 +67,7 @@ def get_apis():
 		api_out["url"] = api_record["url"]
 		api_out["methods"] = api_record["methods"]
 		api_out["auth"] = api_record["auth"]
+		api_out["swagger"] = api_record["swagger"]
 		output.append(api_out)
 
 	return(dict(apis=output))
@@ -110,10 +112,12 @@ def create_api():
 	api["url"] = api_url
 	api["methods"] = api_methods
 	api["auth"] = api_auth
+	api["swagger"] = "not_implemented_yet"
 
 	rc.set("API:" + api_name, json.dumps(api))
 
-	return(dict(name=api_name, url=api_url, methods=str(api_methods), auth=api_auth))
+	#return(dict(name=api_name, url=api_url, methods=str(api_methods), auth=api_auth))
+	return(dict(api))
 
 # Get one API
 @app.route('/config/apis/<id>', method='GET')
@@ -134,6 +138,7 @@ def get_api_details(id):
 	api_out["url"] = api_record["url"]
 	api_out["methods"] = api_record["methods"]
 	api_out["auth"] = api_record["auth"]
+	api_out["swagger"] = api_record["swagger"]
 
 	return(dict(api_out))
 
@@ -153,6 +158,40 @@ def delete_api(id):
 
 	rc.delete("API:" + id)
 	return(dict(info="API deleted"))
+
+# Create Basic Auth User
+@app.route('/config/basic-auth', method='POST')
+@validate_admin
+def create_basicauth():
+
+	try:
+		username = request.forms["username"]
+		password = request.forms["password"]
+	except:
+		response.status = 400
+		return dict({"info":"Need username and password. Read the documentation?"})
+
+	if _valid_identifier_apis(str(username)) != True:
+		response.status = 400
+		return dict({"info":"Username contains invalid characters."})
+
+	pwhash = _get_password_hash(password)
+	rc.set("USER:" + username, pwhash)
+	return(dict(info="Basic Auth User created/updated.", ttl=str(default_ttl)))
+
+# Create API Key
+@app.route('/config/apikey', method='POST')
+@app.route('/config/apikeys', method='POST')
+@validate_admin
+def create_apikey():
+
+	apikey = "K3U" + str(uuid.uuid4()).replace("-", "")
+	rc.set("KEY:" + apikey, "0")
+
+	if 'raw' in request.query:
+		return(apikey)
+	else:
+		return(dict(apikey=apikey, ttl=str(default_ttl)))
 
 # Change Admin Password
 @app.route('/config/password', method='PUT')
