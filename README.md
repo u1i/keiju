@@ -138,7 +138,7 @@ Yes. Simplicity.
 
 I suggest to have nginx, haproxy, k8s etc. take care of that. Try running it on Google Cloud Run!
 
-### Keoju?
+### keiju?
 
 A japanese name. But it also means fairy in Finnish.
 
