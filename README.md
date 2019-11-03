@@ -29,7 +29,7 @@ curl -u admin:changeme -X POST \
 
 Response:
 
-> {"name": "currency", "url": "http://backend.yoisho.dob.jp/fx", "methods": "['GET', 'POST', 'PUT', 'DELETE']", "auth": "none"}
+> {"name": "exchange", "url": "http://backend.yoisho.dob.jp/fx", "methods": ["GET", "POST", "PUT", "DELETE"], "auth": "none", "swagger": "not\_implemented\_yet"}
 
 We didn't excplitcly set the allowed methods or authentication, so the default values (all methods, no authentication) are used.
 
@@ -37,8 +37,7 @@ Now we consume the 'protected' API:
 
 `curl "http://localhost:8080/exchange/currency?currency=USD"`
 
-> {"name": "exchange", "url": "http://backend.yoisho.dob.jp/fx", "methods": ["GET", "POST", "PUT", "DELETE"], "auth": "none", "swagger": "not\_implemented\_yet"}
-
+> {"sell": "489.174", "timestamp": "2019-11-03 01:09:43.767149", "buy": "389.112"}
 
 ## Example 2: Basic Authentication
 
