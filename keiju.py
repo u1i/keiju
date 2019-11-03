@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 admin_password = "changeme"
 redis_datadir = '/data'
 redis_maxmemory = '128mb'
-k3u_version = "0.0.2"
+k3u_version = "0.0.3"
 salt = "@Id8jKtYn"
 default_ttl = 2592000
 debug = False
@@ -186,7 +186,7 @@ def create_basicauth():
 def create_apikey():
 
 	apikey = "K3U" + str(uuid.uuid4()).replace("-", "")
-	rc.set("KEY:" + apikey, "0")
+	rc.set("KEY:" + apikey, str(time.time()))
 
 	if 'raw' in request.query:
 		return(apikey)
@@ -238,6 +238,7 @@ def apiproxy(api, url):
 	log_obj = {}
 
 	log_obj["Request-ID"] = request_id
+	log_obj["Status"] = "Unknown"
 	log_obj["Client-Request"] = {}
 	log_obj["Client-Request"]["client-ip"] = client_ip
 	log_obj["Client-Request"]["client-useragent"] = client_agent
@@ -265,6 +266,7 @@ def apiproxy(api, url):
 		if debug:
 			print (request_id_str + "Request for invalid API " + api)
 
+		log_obj["Status"] = "NotFound"
 		log_obj["Client-Response"]["code"] = "404"
 		log_obj["Client-Response"]["info"] = "no such API"
 		print(log_obj)
@@ -279,19 +281,73 @@ def apiproxy(api, url):
 
 	(request_scheme, request_netloc, request_path, request_query, request_fragment) = request.urlparts
 
+	# Authentication
+	# API Key
+	if api_data["auth"]  == "apikey":
+		try:
+			apikey = request.headers["apikey"]
+			chk = rc.get("KEY:" + str(apikey))
+
+			if chk == "" or chk == None:
+				log_obj["Status"] = "Unauthorized"
+				log_obj["Client-Response"]["code"] = "401"
+				log_obj["Client-Response"]["info"] = "API Key needed but not provided"
+				print(log_obj)
+
+				response.status = 401
+				return
+		except:
+			log_obj["Status"] = "Unauthorized"
+			log_obj["Client-Response"]["code"] = "401"
+			log_obj["Client-Response"]["info"] = "API Key invalid"
+			print(log_obj)
+
+			response.status = 401
+			return
+
+	# Basic Auth
+	if api_data["auth"]  == "basic":
+		try:
+			user = request.auth[0]
+			pw = request.auth[1]
+
+			uhs = rc.get("USER:" + str(user)).decode("utf-8")
+			hs = _get_password_hash(pw)
+
+			if uhs == "" or uhs == None or hs != uhs:
+
+				print (uhs)
+				print (hs)
+				log_obj["Status"] = "Unauthorized"
+				log_obj["Client-Response"]["code"] = "401"
+				log_obj["Client-Response"]["info"] = "Basic Auth credentials invalid"
+				print(log_obj)
+
+				response.status = 401
+				return
+		except:
+			log_obj["Status"] = "Unauthorized"
+			log_obj["Client-Response"]["code"] = "401"
+			log_obj["Client-Response"]["info"] = "Basic Auth credentials missing"
+			print(log_obj)
+
+			response.status = 401
+			return
+
+	# Check if the method is allowed for this API
 	if method not in api_data["methods"]:
 		response.status = 405
 
 		if debug:
 			print (request_id_str + " Method not allowed for API " + api)
 
+		log_obj["Status"] = "NotAllowed"
+
 		log_obj["Client-Response"]["code"] = "405"
 		log_obj["Client-Response"]["info"] = "Method not allowed for API"
 		print(log_obj)
 
 		return
-
-	# check Auth
 
 	# Prepare the Request to the Backend
 
@@ -330,6 +386,7 @@ def apiproxy(api, url):
 	except:
 		if debug:
 			print (request_id_str + "Exception while calling backend")
+			log_obj["Status"] = "Error"
 
 			log_obj["Client-Response"]["code"] = "500"
 			log_obj["Client-Response"]["info"] = "Error while calling backend"
@@ -379,6 +436,8 @@ def apiproxy(api, url):
 	response.headers["Via"] = "keiju/" + str(k3u_version)
 
 	response.status = r.status_code
+	log_obj["Status"] = "Processed"
+
 	print(log_obj)
 	return(r.text)
 

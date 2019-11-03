@@ -56,12 +56,16 @@ curl -u admin:changeme -X POST \
 ```
 curl -X POST -u admin:changeme \
 http://localhost:8080/config/basic-auth \
--d 'username=uli' -d 'password=bla'`
+-d 'username=uli' -d 'password=bla'
 ```
 
 ### Consume API with Basic Auth
 
-coming
+```
+curl -u uli:bla \
+"http://localhost:8080/currency/currency?currency=USD"
+```
+> {"sell": "489.186", "timestamp": "2019-11-03 16:28:06.809565", "buy": "389.197"}
 
 ## Example 3: API Keys
 
@@ -82,9 +86,17 @@ curl -X POST -u admin:changeme \
 http://localhost:8080/config/apikeys
 ```
 
-### Consume API with Basic Auth
+> {"apikey": "K3Uc18cda3befa640c5acd8045690cd2811", "ttl": "2592000"}
 
-coming
+
+### Consume API with API Key
+
+```
+curl -H "apikey:K3Uc18cda3befa640c5acd8045690cd2811" \
+"http://localhost:8080/currency/currency?currency=USD"
+```
+> {"sell": "489.115", "timestamp": "2019-11-03 16:32:11.269691", "buy": "389.112"}
+
 
 ## Example 4: Only Allow Certain HTTP Methods for API
 
@@ -142,5 +154,6 @@ A japanese name. But it also means fairy in Finnish.
 ### Coming soon
 
 * Rate-Limits
+* TTL for API Keys
 * Swagger Passthrough/Parse
 * TTL for API Keys
