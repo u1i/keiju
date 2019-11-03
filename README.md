@@ -57,7 +57,6 @@ curl -u admin:changeme -X POST \
 curl -X POST -u admin:changeme \
 http://localhost:8080/config/basic-auth \
 -d 'username=uli' -d 'password=bla'`
-
 ```
 
 ### Consume API with Basic Auth
@@ -81,7 +80,6 @@ curl -u admin:changeme -X POST \
 ```
 curl -X POST -u admin:changeme \
 http://localhost:8080/config/apikeys
-
 ```
 
 ### Consume API with Basic Auth
