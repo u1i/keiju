@@ -5,7 +5,7 @@
 * Simplicity wins over Feature Completeness
 * Supports API Keys & Basic Auth
 * Detailed Request/Response Logging in JSON on STDOUT
-* Control & Configure via API
+* Control & Configure via API Calls
 * Runs on Docker, k8s, knative, OpenShift, Google Cloud Run etc.
 * Stateful (embedded Redis) by default, or use external Redis
 
@@ -16,9 +16,9 @@
 
 `docker run -d -p 8080:8080 u1ih/keiju:latest`
 
-## Example 1: Register & Consume an API (Passthrough)
+## Example 1: Register Proxy & Consume an API (Passthrough)
 
-We're using an API from the [Yoisho Open Banking Project](http://yoisho.dob.jp/):
+We're using an API endpoint from the [Yoisho Open Banking Project](http://yoisho.dob.jp/):
 
 ```
 curl -u admin:changeme -X POST \
@@ -41,7 +41,7 @@ Now we consume the 'protected' API:
 
 ## Example 2: Basic Authentication
 
-### Register API
+### Register API Proxy
 
 ```
 curl -u admin:changeme -X POST \
@@ -69,7 +69,7 @@ curl -u uli:bla \
 
 ## Example 3: API Keys
 
-### Register API
+### Register API Proxy
 
 ```
 curl -u admin:changeme -X POST \
@@ -112,11 +112,11 @@ curl -u admin:changeme -X POST \
 
 ## Admin Stuff & More Details
 
-### List all APIs
+### List all API Proxies
 
 `curl -u admin:changeme http://localhost:8080/config/apis`
 
-### Delete an API
+### Delete an API Proxy
 
 `curl -u admin:changeme -X DELETE http://localhost:8080/config/apis/currency`
 
