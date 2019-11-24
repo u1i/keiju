@@ -433,6 +433,22 @@ def apiproxy(api, url):
 		del response.headers["Connection"]
 	except:
 		pass
+
+	try:
+		del response.headers["Content-Encoding"]
+	except:
+		pass
+
+	try:
+		del response.headers["Transfer-Encoding"]
+	except:
+		pass
+
+	try:
+		del response.headers["Vary"]
+	except:
+		pass
+
 	response.headers["Via"] = "keiju/" + str(k3u_version)
 
 	response.status = r.status_code
