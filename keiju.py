@@ -455,7 +455,8 @@ def apiproxy(api, url):
 	log_obj["Status"] = "Processed"
 
 	print(log_obj)
-	return(r.text)
+	#return(r.text)
+	return(r.content)
 
 # Default 404 handler
 @app.error(404)
