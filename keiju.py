@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 admin_password = "changeme"
 redis_datadir = '/data'
 redis_maxmemory = '128mb'
-k3u_version = "0.0.3"
+k3u_version = "0.0.6"
 salt = "@Id8jKtYn"
 default_ttl = 2592000
 debug = False
@@ -522,7 +522,7 @@ except:
 	exit(1)
 
 # Read unique ID for this instance / cluster or initialize if it doesn't exist
-cluster_id = rc.get("_K3U_ID_")
+cluster_id = rc.get("_K3U_ID_").decode("utf-8")
 
 if cluster_id == None:
 	cluster_id = _cluster_init()
