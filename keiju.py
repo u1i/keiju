@@ -522,7 +522,11 @@ except:
 	exit(1)
 
 # Read unique ID for this instance / cluster or initialize if it doesn't exist
-cluster_id = rc.get("_K3U_ID_").decode("utf-8")
+
+try:
+	cluster_id = rc.get("_K3U_ID_").decode("utf-8")
+except:
+	cluster_id = None
 
 if cluster_id == None:
 	cluster_id = _cluster_init()

@@ -8,3 +8,4 @@ pip-selfcheck.json
 .DS_Store
 man/
 __pycache__
+pyvenv.cfg

@@ -151,8 +151,20 @@ I suggest to have nginx, haproxy, k8s etc. take care of that. Try running it on 
 
 A japanese name. But it also means fairy in Finnish.
 
-### Coming soon
+### Coming soon(ish?)
 
 * Rate-Limits
 * TTL for API Keys
 * Swagger Passthrough/Parse
+
+### Image on Docker Hub
+
+[https://hub.docker.com/r/u1ih/keiju](https://hub.docker.com/r/u1ih/keiju)
+
+### Logging to STDOUT – JSON Format
+
+`{'Request-ID': 'a0bc6d5c-70d4-42fa-9ad2-b1604cb31a16', 'Status': 'Unauthorized', 'Client-Request': {'client-ip': '127.0.0.1', 'client-useragent': 'curl/7.64.1', 'method': 'GET', 'headers': "{'Host': 'localhost:8080', 'User-Agent': 'curl/7.64.1', 'Accept': '*/*', 'Apikey': 'K3Uc18cda3befa640c5acd8045690cd2811'}"}, 'Backend-Request': {}, 'Backend-Response': {}, 'Client-Response': {'code': '401', 'info': 'API Key needed but not provided'}}`
+
+`{'Request-ID': '4fad9881-e50b-43c8-b7e9-08349cead147', 'Status': 'Processed', 'Client-Request': {'client-ip': '127.0.0.1', 'client-useragent': 'curl/7.64.1', 'method': 'GET', 'headers': "{'Host': 'localhost:8080', 'User-Agent': 'curl/7.64.1', 'Accept': '*/*', 'Apikey': 'K3U63b4dcd1e93b494fa19bd9264832c840'}"}, 'Backend-Request': {'headers': "{'Host': 'backend.yoisho.dob.jp', 'User-Agent': 'keiju/0.0.6', 'Accept': '*/*', 'Apikey': 'K3U63b4dcd1e93b494fa19bd9264832c840'}", 'url': 'http://backend.yoisho.dob.jp/fx/currency', 'querystring': 'currency=USD'}, 'Backend-Response': {'code': '200', 'headers': "{'Date': 'Wed, 10 Jun 2020 02:49:14 GMT', 'Content-Type': 'application/json', 'Content-Length': '80', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'X-Clacks-Overhead': 'GNU Terry Pratchett', 'Server': 'PythonAnywhere'}", 'elapsed_time': '0.616486'}, 'Client-Response': {}}`
+
+`{'Request-ID': 'e23a5726-b52c-4d5b-a9c5-4f5de4817bce', 'Status': 'Processed', 'Client-Request': {'client-ip': '127.0.0.1', 'client-useragent': 'curl/7.64.1', 'method': 'GET', 'headers': "{'Host': 'localhost:8080', 'User-Agent': 'curl/7.64.1', 'Accept': '*/*', 'Apikey': 'K3U63b4dcd1e93b494fa19bd9264832c840'}"}, 'Backend-Request': {'headers': "{'Host': 'backend.yoisho.dob.jp', 'User-Agent': 'keiju/0.0.6', 'Accept': '*/*', 'Apikey': 'K3U63b4dcd1e93b494fa19bd9264832c840'}", 'url': 'http://backend.yoisho.dob.jp/fx/currency', 'querystring': 'currency=USD'}, 'Backend-Response': {'code': '200', 'headers': "{'Date': 'Wed, 10 Jun 2020 02:49:17 GMT', 'Content-Type': 'application/json', 'Content-Length': '80', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'X-Clacks-Overhead': 'GNU Terry Pratchett', 'Server': 'PythonAnywhere'}", 'elapsed_time': '0.498662'}, 'Client-Response': {}}`
