@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 admin_password = "changeme"
 redis_datadir = '/data'
 redis_maxmemory = '128mb'
-k3u_version = "0.0.6"
+k3u_version = "0.0.7"
 salt = "@Id8jKtYn"
 default_ttl = 2592000
 debug = False
