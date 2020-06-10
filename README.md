@@ -31,7 +31,7 @@ Response:
 
 > {"name": "exchange", "url": "http://backend.yoisho.dob.jp/fx", "methods": ["GET", "POST", "PUT", "DELETE"], "auth": "none", "swagger": "not\_implemented\_yet"}
 
-We didn't excplitcly set the allowed methods or authentication, so the default values (all methods, no authentication) are used.
+We didn't explicitly set the allowed methods or authentication, so the default values (all methods, no authentication) are used.
 
 Now we consume the 'protected' API:
 
