@@ -17,7 +17,7 @@ app = Bottle()
 # The default path renders a hello world JSON message
 @app.get('/')
 def get_home():
-	return(dict(msg="This is keiju ", release=str(k3u_version),\
+	return(dict(msg="This is keiju", release=str(k3u_version),\
 	instance=str(cluster_id)))
 
 def return_error(message, status):
