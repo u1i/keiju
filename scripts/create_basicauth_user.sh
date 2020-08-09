@@ -1,4 +1,6 @@
-curl -X POST -u admin:changeme \
+. ./keiju.cfg
+
+curl -X POST -u admin:$keiju_password \
 -d 'username=uli' \
 -d 'password=bla' \
-http://localhost:8080/config/basic-auth
+$keiju/config/basic-auth

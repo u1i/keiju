@@ -1,1 +1,3 @@
-curl -u admin:changeme http://localhost:8080/config/apis
+. ./keiju.cfg
+
+curl -u admin:$keiju_password $keiju/config/apis

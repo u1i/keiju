@@ -1,1 +1,1 @@
-curl -u admin:changeme -X DELETE http://localhost:8080/config/apis/currency
+curl -u admin:$keiju_password -X DELETE $keiju/config/apis/currency

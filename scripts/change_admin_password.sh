@@ -1,1 +1,3 @@
-curl -u admin:changeme -X PUT http://localhost:8080/config/password --data "password=bla"
+. ./keiju.cfg
+
+curl -u admin:$keiju_password -X PUT http://localhost:8080/config/password --data "password=bla"
