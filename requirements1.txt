@@ -1,5 +1,5 @@
 bottle==0.12.17
-certifi==2019.9.11
+certifi==2022.12.7
 chardet==3.0.4
 cheroot==8.2.1
 CherryPy==18.3.0
